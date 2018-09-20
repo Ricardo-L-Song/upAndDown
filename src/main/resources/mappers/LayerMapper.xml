@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.sl.layer.dao.LayerMapper" >
+  <resultMap id="BaseResultMap" type="com.example.sl.layer.model.Layer" >
+    <id column="layer_id" property="layerId" jdbcType="VARCHAR" />
+    <result column="layer_name" property="layerName" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="release_time" property="releaseTime" jdbcType="DATE" />
+    <result column="record_time" property="recordTime" jdbcType="DATE" />
+    <result column="file_name" property="fileName" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from layer
+    where layer_id = #{layerId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.example.sl.layer.model.Layer" >
+    insert into layer (layer_id, layer_name, description, 
+      release_time, record_time, file_name
+      )
+    values (#{layerId,jdbcType=VARCHAR}, #{layerName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{releaseTime,jdbcType=DATE}, #{recordTime,jdbcType=DATE}, #{fileName,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.sl.layer.model.Layer" >
+    update layer
+    set layer_name = #{layerName,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      release_time = #{releaseTime,jdbcType=DATE},
+      record_time = #{recordTime,jdbcType=DATE},
+      file_name = #{fileName,jdbcType=VARCHAR}
+    where layer_id = #{layerId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select layer_id, layer_name, description, release_time, record_time, file_name
+    from layer
+    where layer_id = #{layerId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByLayerName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select layer_id, layer_name, description, release_time, record_time, file_name
+    from layer
+    where layer_name
+    LIKE concat('%',#{layerName,jdbcType=VARCHAR},'%')
+  </select>
+  <select id="selectByTime" resultMap="BaseResultMap">
+    select layer_id, layer_name, description, release_time, record_time, file_name
+    from layer
+    <where>
+      <if test="time1 != null">AND release_time <![CDATA[>=]]> #{time1,jdbcType=DATE}</if>
+      <if test="time2 != null">AND release_time <![CDATA[<=]]>#{time2,jdbcType=DATE}</if>
+    </where>
+  </select>
+  <select id="selectByDescription" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select layer_id, layer_name, description, release_time, record_time, file_name
+    from layer
+    where description
+    LIKE concat('%',#{description,jdbcType=VARCHAR},'%')
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select layer_id, layer_name, description, release_time, record_time, file_name
+    from layer
+  </select>
+</mapper>
