@@ -1,5 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 pageEncoding="UTF-8"%>
+<%
+    String path = request.getContextPath();
+    String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+            + path + "/";
+    String id=(String) session.getAttribute("id");
+    if (id == null) {
+        response.sendRedirect( basePath+"Login/login");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,7 +47,7 @@ pageEncoding="UTF-8"%>
         <ul class="layui-nav my-header-user-nav" lay-filter="side-top-right">
             <li class="layui-nav-item">
                 <a class="name" href="javascript:;"><img src="/public/frame/static/image/code.png" alt="logo">
-                    <?=cookie('username')?>
+                    欢迎,${sessionScope.username}
 
                 </a>
                 <dl class="layui-nav-child">
@@ -97,7 +107,7 @@ pageEncoding="UTF-8"%>
 <script type="text/javascript" src="/public/frame/static/js/vip_comm.js"></script>
 <script type="text/javascript">
     layui.use(['layer', 'vip_nav'], function() {
-
+        var path = '<%=basePath%>';
         // 操作对象
         var layer = layui.layer,
             vipNav = layui.vip_nav,
@@ -110,13 +120,13 @@ pageEncoding="UTF-8"%>
 
         // you code ...
         $('#outlogin').click(function() {
-            var url = "/zyf/test";
+            var url =  path+"Login/outlogin";
             $.get(url, function(data) {
                 if (data.code == 1) {
                     layer.msg(data.msg, {
                         icon: 6
                     });
-                    window.location.href = "Login/login";
+                    window.location.href =path+ "Login/login";
                 } else {
                     layer.msg(data.msg, {
                         icon: 5

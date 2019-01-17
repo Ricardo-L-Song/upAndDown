@@ -30,11 +30,11 @@ public class Menu {
     public Map<String,Object> getList(){
         List<Map<String,Object>> mapList=new ArrayList();
         Map m2=new HashMap();
-        m2.put("text","法律法规");
+        m2.put("text","法律法规管理");
         m2.put("icon","&#xe621;");
         m2.put("href","Index/layer");
         Map m3=new HashMap();
-        m3.put("text","法律法规管理");
+        m3.put("text","用户管理");
         m3.put("icon","&#xe621;");
         m3.put("href","Index/manager");
         mapList.add(m2);

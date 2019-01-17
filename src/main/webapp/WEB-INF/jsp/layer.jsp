@@ -1,5 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
+<%
+    String path = request.getContextPath();
+    String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+            + path + "/";
+%>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,12 +24,14 @@
 <!-- 工具集 -->
 
 
-<div class="my-btn-box" id="btn-box">
+<div  id="btn-box">
+    <div>
         <span class="fl">
             <%--<a class="layui-btn layui-btn-danger radius btn-delect" id="btn-delete-all">删除法律</a>--%>
             <a class="layui-btn btn-add btn-default" id="btn-add">添加法律</a>
             <a class="layui-btn btn-add btn-default" id="btn-refresh"><i class="layui-icon">&#xe666;</i></a>
         </span>
+
     <span class="fr">
         <div class="layui-input-inline">
             <input type="text" name="sel_name" autocomplete="off" required lay-verify="required" placeholder="请输入法律名称" class="layui-input">
@@ -43,7 +50,18 @@
         <button class="layui-btn mgl-20"  lay-submit lay-filter="selForm" id="sel">查询</button>
         <button id="res" class="layui-btn layui-btn-primary">重置</button>
         </span>
+
+    </div>
 </div>
+<br />
+<br />
+<br />
+<div class="layui-btn-container">
+    <a class="layui-btn btn-add btn-default" id="btn-excel">选择Excel文件</a>
+    &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+    <a class="layui-btn btn-add btn-default" id="btn-excel-sure">上传导入</a>
+</div>
+
 
 <!-- 表格 -->
 <div id="dateTable" lay-filter="test"></div>
@@ -126,6 +144,7 @@
 
 
 <script type="text/javascript">
+    var path = '<%=basePath%>';
     layui.use(['element', 'form', 'table', 'layer', 'vip_table', 'laydate','upload'], function() {
         var form = layui.form,
             table = layui.table,
@@ -168,6 +187,34 @@
                     layer.msg(res.msg, {
                         icon: 6
                     });
+                }else if(res.code==2){
+                    layer.msg(res.msg, {
+                        icon: 5
+                    });
+                }
+            }
+        });
+
+        //Excel导入
+        upload.render({
+            elem: '#btn-excel'
+            ,url: 'layer/excelparser?fileName=1'
+            ,auto: false
+            //,multiple: true
+            ,bindAction: '#btn-excel-sure'
+            ,size: 2048 //最大允许上传的文件大小 2M
+            ,accept: 'file' //允许上传的文件类型
+            ,exts:'xlsx'//只上传pdf文档
+            ,done: function(res){
+                console.log(res)
+                if(res.code == 1){//成功的回调
+                    //do something （比如将res返回的图片链接保存到表单的隐藏域）
+                    // $('#set-add-put input[name="fileName"]').val(res.data.fileName);
+
+                    layer.msg(res.msg, {
+                        icon: 6
+                    });
+                    location.reload();
                 }else if(res.code==2){
                     layer.msg(res.msg, {
                         icon: 5
@@ -728,7 +775,6 @@
 <script type="text/html" id="barOption">
     <a class="layui-btn layui-btn-mini layui-btn-danger" lay-event="del">删除</a>
     <%--<a class="layui-btn layui-btn-mini layui-btn-normal" lay-event="edit">修改先不做</a>--%>
-    <%--<a class="layui-btn layui-btn-mini layui-btn-normal" lay-event="checkout">详情</a>--%>
     <a  class="layui-btn layui-btn-mini layui-btn-normal" lay-event="download">下载</a>
 </script>
 

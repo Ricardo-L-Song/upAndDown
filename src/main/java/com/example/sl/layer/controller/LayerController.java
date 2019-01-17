@@ -1,17 +1,16 @@
 package com.example.sl.layer.controller;
 
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.example.sl.layer.model.Layer;
 import com.example.sl.layer.service.LayerService;
 import com.example.sl.layer.util.*;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.ibatis.annotations.Delete;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
 
-@Controller
+@RestController
+@RequestMapping("/Index")
 public class LayerController {
     public static final Logger logger=LoggerFactory.getLogger(LayerController.class);
 
@@ -91,6 +91,128 @@ public class LayerController {
         }
 
         return api.returnJson(1,"上传成功",map);
+    }
+
+    /**
+     * 处理Excel解析的方法
+     * @param file 前台上传的文件对象
+     * @return
+     */
+    @RequestMapping(value = "Index/layer/excelparser")
+    @ResponseBody
+    public   Map<String,Object> Excel(HttpServletRequest request,@RequestParam("file")MultipartFile file)throws Exception
+    {
+        Map<String, Object> dataMap = new HashMap<String, Object>();
+        String fileName1 = request.getParameter("fileName");// 设置文件名，根据业务需要替换成要下载的文件名
+        String fileName;
+        try {
+            //上传目录地址
+
+
+            String uploadDir = request.getSession().getServletContext().getRealPath("/") +"upload/";
+
+            uploadDir=uploadDir.substring(0,uploadDir.length()-1);
+            uploadDir=uploadDir+"\\";//下载目录
+            String realPath=uploadDir+fileName1;//
+            File dir = new File(realPath);
+            if(!dir.exists())
+            {
+                dir.mkdir();
+            }
+            //调用上传方法
+            fileName=upload.executeUpload1(uploadDir, file,fileName1);
+            uploadDir=uploadDir.substring(0,uploadDir.length()-1);
+            dataMap.put("fileName",fileName);
+            dataMap.put("dir",uploadDir);
+        }catch (Exception e)
+        {
+            //打印错误堆栈信息
+            e.printStackTrace();
+            return api.returnJson(2,"解析失败",dataMap);
+        }
+        ExcelParser(fileName);
+        return api.returnJson(1,"解析成功",dataMap);
+    }
+
+    public void ExcelParser(String fileName)throws Exception{
+        ImportParams params = new ImportParams();
+        params.setTitleRows(1);
+        params.setHeadRows(1);
+        long start = new Date().getTime();
+        List<Layer> list=new ArrayList<>();
+        list = upload.importExcel("C:/Users/sl/Desktop/layer/layer/src/main/webapp/upload/"+fileName, 1, 1, Layer.class);
+        System.out.println(new Date().getTime() - start);
+        System.out.println(list.size());
+        System.out.println(list);
+        int testId=1;
+        int isInsert=0;
+        for (int i = 0; i <list.size() ; i++) {
+            Layer layer=new Layer();
+            UUID uuid=UUID.randomUUID();
+            String layerId=uuid.toString();
+            layer.setLayerId(layerId);
+            layer.setLayerName(list.get(i).getLayerName());
+            layer.setDescription(list.get(i).getDescription());
+            layer.setRecordTime(list.get(i).getRecordTime());
+            layer.setReleaseTime(list.get(i).getReleaseTime());
+            int is_add=layerService.InsertLayer(layer);
+            System.out.println(is_add);
+        }
+
+        //这里是设置Actionlist的testid，方便之后的插入
+//        for(int i=0;i<list.size();i++){
+//            if(list.get(i).getTestDescription()!=null&&list.get(i).getTestDescription()!=""){//如果不空，testId更新 并且将这条数据插入Test表
+//                PageData vpd = new PageData();
+//                vpd.put("TEST_ID", list.get(i).getTestId());
+//                vpd.put("TEST_NAME", list.get(i).getTestName());
+//                vpd.put("TEST_DESCRIPTION", list.get(i).getTestDescription());
+//                vpd.put("TEST_INIT", list.get(i).getTestInit());
+//                vpd.put("TEST_PREMISE", list.get(i).getTestPremise());
+//                vpd.put("TEST_METHOD", list.get(i).getTestMethod());
+//                vpd.put("TEST_ABORT", list.get(i).getTestAbort());
+//                vpd.put("TEST_ASSESS", list.get(i).getTestAssess());
+//                vpd.put("TEST_DESIGN", list.get(i).getTestDesign());
+//                testService.saveD(vpd);
+//
+//                PageData apd = new PageData();
+//                String action_id = UuidUtil.get32UUID();
+//                apd.put("ACTION_ID",action_id);
+//                apd.put("OPERATION",list.get(i).getActionList().get(0).getOperation());
+//                apd.put("FORWARD",list.get(i).getActionList().get(0).getForward());
+//                apd.put("ASSESS",list.get(i).getActionList().get(0).getAssess());
+//                apd.put("TEST_ID",list.get(i).getTestId());
+//
+//                actionService.saveA(apd);
+//                list.get(i).getActionList().get(0).setTestId(list.get(i).getTestId());
+//                testId=list.get(i).getTestId();
+//                /*isInsert=testService.InsertTest(list.get(i));*/
+//                list.get(i).getActionList().get(0).setTestId(testId);
+//                testId+=1;
+//                continue;
+//            }//如果为空，testId不变 将数据插入Action表
+//            if(list.get(i).getActionList().get(0).getAssess()==null){
+//                continue;
+//            }
+//            list.get(i).getActionList().get(0).setTestId(testId-1);
+//            PageData apd = new PageData();
+//            String action_id = UuidUtil.get32UUID();
+//            apd.put("ACTION_ID",action_id);
+//            apd.put("OPERATION",list.get(i).getActionList().get(0).getOperation());
+//            apd.put("FORWARD",list.get(i).getActionList().get(0).getForward());
+//            apd.put("ASSESS",list.get(i).getActionList().get(0).getAssess());
+//            apd.put("TEST_ID",list.get(i).getActionList().get(0).getTestId());
+//            actionService.saveA(apd);
+//
+//        }
+       System.out.println(ReflectionToStringBuilder.toString(list.get(0)));
+       System.out.println(ReflectionToStringBuilder.toString(list.get(1)));
+//        System.out.println(ReflectionToStringBuilder.toString(list.get(3)));
+//        System.out.println(ReflectionToStringBuilder.toString(list.get(4)));
+//        System.out.println(ReflectionToStringBuilder.toString(list.get(0).getActionList().get(0)));
+//        System.out.println(ReflectionToStringBuilder.toString(list.get(1).getActionList().get(0)));
+//        System.out.println(ReflectionToStringBuilder.toString(list.get(3).getActionList().get(0)));
+//        System.out.println(ReflectionToStringBuilder.toString(list.get(4).getActionList().get(0)));
+        //到这一步 已经将Test数据放入了list,现在要进行操作
     }
 
     //下载

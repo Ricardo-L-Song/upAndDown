@@ -14,10 +14,10 @@
     where layer_id = #{layerId,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.example.sl.layer.model.Layer" >
-    insert into layer (layer_id, layer_name, description, 
+    insert into layer (layer_id, layer_name, description,
       release_time, record_time, file_name
       )
-    values (#{layerId,jdbcType=VARCHAR}, #{layerName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+    values (#{layerId,jdbcType=VARCHAR}, #{layerName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
       #{releaseTime,jdbcType=DATE}, #{recordTime,jdbcType=DATE}, #{fileName,jdbcType=VARCHAR}
       )
   </insert>

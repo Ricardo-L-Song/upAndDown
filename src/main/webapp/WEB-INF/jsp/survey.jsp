@@ -130,7 +130,7 @@
     </div>
 
     <!--统计弹出层-->
-    <div id="set-count" style="display:none; width:900px; padding:20px;">
+    <div id="set-count" style="display:none; width:700px; padding:20px;height: 200px">
         <form class="layui-form">
             <div class="layui-form-item">
                 <label class="layui-form-label"></label>
@@ -187,7 +187,7 @@
                 layer.open({
                     type: 1,
                     skin: 'layui-layer-rim', //加上边框
-                    area: ['900px', '500px'], //宽高
+                    area: ['500px', '300px'], //宽高
                     content: $('#set-count'),
                     title: "统计数据"
                 });
